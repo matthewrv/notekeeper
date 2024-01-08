@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"slices"
 	"sort"
 	"strconv"
@@ -222,9 +222,11 @@ func main() {
 	go scheduleReminders(ctx, &config, ticker, messagesToSchedule)
 	// TODO: load reminders from file system on start up
 
-	log.Println("Start listening for updates. Press enter to stop")
+	log.Println("Start listening for updates. Press Ctrl+C to stop")
 
 	// Wait for a newline symbol, then cancel handling updates
-	bufio.NewReader(os.Stdin).ReadBytes('\n')
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
 	cancel()
 }
